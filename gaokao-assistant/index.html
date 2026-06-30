@@ -867,6 +867,10 @@
 </div>
 
 <script>
+// ========== 部署配置 ==========
+// 本地开发: 留空（相对路径），生产部署: 改为 Railway 后端地址
+const API_BASE = '';  // 例: 'https://your-app.railway.app'
+
 // ========== 全局状态 ==========
 let currentSchool = '';
 let searchTimer = null;
@@ -931,7 +935,7 @@ function doSearch() {
     searchTimer = setTimeout(async () => {
         const param = searchMode === 'school' ? 'search' : 'search_q';
         try {
-            const res = await fetch(`api.php?${param}=${encodeURIComponent(kw)}`).then(r => r.json());
+            const res = await fetch(`${API_BASE}/api?${param}=${encodeURIComponent(kw)}`).then(r => r.json());
             let results = res.error ? [] : res;
             // 省份过滤
             if (selectedProvinces.length > 0) {
@@ -996,7 +1000,7 @@ async function openDetail(name) {
 
     try {
         if (detailCache[name]) { renderDetail(detailCache[name]); return; }
-        const data = await fetch(`api.php?name=${encodeURIComponent(name)}`).then(r => r.json());
+        const data = await fetch(`${API_BASE}/api?name=${encodeURIComponent(name)}`).then(r => r.json());
         if (data.error) throw new Error(data.error);
         detailCache[name] = data;
         renderDetail(data);
@@ -1071,7 +1075,7 @@ async function submitReply() {
     if (text.length > 500) return toast('内容不能超过500字');
     const body = `submit_content=1&school_name=${encodeURIComponent(currentSchool)}&user_content=${encodeURIComponent(text)}`;
     try {
-        const res = await fetch('api.php', {
+        const res = await fetch(`${API_BASE}/api`, {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body
@@ -1104,7 +1108,7 @@ async function askAI() {
     const body = `ask_ai=1&school_name=${encodeURIComponent(currentSchool)}&question=${encodeURIComponent(q)}`;
 
     try {
-        const res = await fetch('api.php', {
+        const res = await fetch(`${API_BASE}/api`, {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body
@@ -1136,7 +1140,7 @@ async function reportNameError() {
     if (!newName || newName.trim() === '' || newName.trim() === currentSchool) return;
     const body = `report_error=1&old_name=${encodeURIComponent(currentSchool)}&new_name=${encodeURIComponent(newName.trim())}`;
     try {
-        const res = await fetch('api.php', {
+        const res = await fetch(`${API_BASE}/api`, {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body
@@ -1193,7 +1197,7 @@ async function startCompare() {
     try {
         const results = await Promise.all(compareList.map(async name => {
             if (detailCache[name]) return detailCache[name];
-            const data = await fetch(`api.php?name=${encodeURIComponent(name)}`).then(r => r.json());
+            const data = await fetch(`${API_BASE}/api?name=${encodeURIComponent(name)}`).then(r => r.json());
             if (!data.error) detailCache[name] = data;
             return data;
         }));
@@ -1515,7 +1519,7 @@ async function filterByProvince() {
 
     if (selectedProvinces.length === 0) {
         try {
-            const res = await fetch('api.php?get_home=1').then(r => r.json());
+            const res = await fetch(`${API_BASE}/api?get_home=1`).then(r => r.json());
             hotData = res.hot || [];
         } catch(e) { hotData = []; }
         document.getElementById('hot-title-row').style.display = '';
@@ -1529,7 +1533,7 @@ async function filterByProvince() {
     try {
         const allResults = await Promise.all(
             selectedProvinces.map(p =>
-                fetch(`api.php?province=${encodeURIComponent(p)}`).then(r => r.json())
+                fetch(`${API_BASE}/api?province=${encodeURIComponent(p)}`).then(r => r.json())
             )
         );
         const merged = [];
@@ -1572,7 +1576,7 @@ async function init() {
     initBackTop();
 
     try {
-        const res = await fetch('api.php?get_home=1').then(r => r.json());
+        const res = await fetch(`${API_BASE}/api?get_home=1`).then(r => r.json());
         if (res.error) {
             document.getElementById('notice-text').textContent = '⚠️ ' + res.error;
             return;
