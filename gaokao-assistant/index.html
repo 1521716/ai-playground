@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>高考志愿大学助手 - 全国大学真实生活查询</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --purple: #7c3aed;
+            --purple-light: #ede9fe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --radius-sm: 10px;
+            --radius: 14px;
+            --radius-lg: 18px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(180deg, #eff6ff 0%, #f1f5f9 30%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 0 0 80px 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 540px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 0 14px;
+        }
+
+        /* ====== 顶部渐变头部 ====== */
+        .hero {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 40%, #3b82f6 70%, #60a5fa 100%);
+            padding: 28px 22px 22px;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            text-align: center;
+            color: #fff;
+            margin: 0 -14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero .icon { font-size: 44px; margin-bottom: 6px; position: relative; z-index: 1; }
+        .hero h1 { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; position: relative; z-index: 1; }
+        .hero .subtitle { font-size: 12px; opacity: 0.85; margin-top: 4px; position: relative; z-index: 1; }
+
+        /* ====== 卡片 ====== */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow var(--transition);
+        }
+        .card:hover { box-shadow: var(--shadow-md); }
+
+        /* ====== 公告栏 ====== */
+        .notice {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #bfdbfe;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: #1e40af;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.5;
+        }
+        .notice .dot {
+            width: 7px; height: 7px;
+            background: #3b82f6;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.8); }
+        }
+
+        /* ====== 搜索模式标签 ====== */
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 11px 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all var(--transition);
+            border: none;
+            background: transparent;
+        }
+        .tab.active-school {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+        }
+        .tab.active-condition {
+            background: var(--danger);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.3);
+        }
+
+        /* ====== 搜索输入框 ====== */
+        .search-row {
+            display: flex; gap: 8px; margin-top: 12px; align-items: stretch;
+        }
+        .search-row input {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: all var(--transition);
+            background: #fafbfc;
+            color: var(--text);
+        }
+        .search-row input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .search-row input.mode-condition {
+            border-color: #fecaca;
+        }
+        .search-row input.mode-condition:focus {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+        }
+        .search-btn {
+            padding: 0 20px; background: var(--primary);
+            color: #fff; border: none; border-radius: 12px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all var(--transition); white-space: nowrap;
+            min-width: 64px;
+        }
+        .search-btn:hover { background: var(--primary-dark); }
+        .search-btn:active { transform: scale(0.96); }
+
+        /* ====== 收藏 + 浏览足迹并排 ====== */
+        .dual-folder {
+            display: flex; gap: 12px; margin-top: 14px;
+        }
+        .dual-folder .folder-card {
+            flex: 1; padding: 14px; border-radius: var(--radius);
+            cursor: pointer; transition: all var(--transition);
+            box-shadow: var(--shadow); background: #fff;
+        }
+        .dual-folder .folder-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .dual-folder .folder-icon { font-size: 20px; margin-bottom: 4px; }
+        .dual-folder .folder-title { font-weight: 700; font-size: 13px; color: var(--text); }
+        .dual-folder .folder-count { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .dual-folder .folder-hint { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+        /* ====== 标签 ====== */
+        .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all var(--transition);
+            user-select: none;
+        }
+        .tag:hover {
+            background: var(--primary-light);
+            border-color: #93c5fd;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        .tag .name { font-weight: 500; }
+        .tag .views { font-size: 10px; color: var(--text-muted); }
+        .tag .pk-dot {
+            font-size: 11px;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-weight: 600;
+            border: 1.5px solid var(--purple);
+            color: var(--purple);
+            background: #fff;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .tag .pk-dot:hover { background: var(--purple); color: #fff; }
+        .tag .pk-dot.in-pk { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+        /* ====== 热搜标题 ====== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--danger);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .section-title .fire { animation: bounce-fire 0.6s infinite alternate; }
+        @keyframes bounce-fire {
+            from { transform: translateY(0); }
+            to { transform: translateY(-3px); }
+        }
+
+        /* ====== 条件搜索结果 ====== */
+        .q-result {
+            background: #fff;
+            border: 1px solid #fecaca;
+            border-left: 3px solid var(--danger);
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .q-result:hover {
+            background: var(--danger-light);
+            transform: translateX(2px);
+        }
+        .q-result .q-school { font-weight: 600; color: var(--primary); font-size: 14px; margin-bottom: 3px; }
+        .q-result .q-title { font-size: 12px; color: var(--text-secondary); }
+        .q-result .q-preview { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        /* ====== 详情页 ====== */
+        .back-btn {
+            background: none; border: none;
+            color: var(--primary);
+            font-size: 14px; font-weight: 500;
+            cursor: pointer; padding: 4px 0;
+            transition: opacity var(--transition);
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .back-btn:hover { opacity: 0.7; }
+
+        .detail-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0 14px;
+        }
+        .detail-header-left { flex: 1; min-width: 160px; }
+        .detail-header h2 {
+            font-size: 20px;
+            color: var(--text);
+            padding-left: 12px;
+            border-left: 4px solid var(--primary);
+            line-height: 1.3;
+        }
+        .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all var(--transition);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-pk { background: var(--purple); color: #fff; box-shadow: 0 2px 6px rgba(124,58,237,0.25); }
+        .btn-pk.active { background: var(--danger); box-shadow: 0 2px 6px rgba(239,68,68,0.25); }
+        .btn-share { background: var(--success); color: #fff; box-shadow: 0 2px 6px rgba(16,185,129,0.25); }
+        .btn-report { background: #fff; color: var(--danger); border: 1.5px solid var(--danger); }
+        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        /* ====== Q&A 折叠面板 ====== */
+        details.qa-item {
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            overflow: hidden;
+            transition: all var(--transition);
+        }
+        details.qa-item:hover { border-color: #cbd5e1; }
+        details.qa-item[open] {
+            border-color: #93c5fd;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+        }
+        details.qa-item summary {
+            padding: 14px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            color: var(--text);
+        }
+        details.qa-item summary::-webkit-details-marker { display: none; }
+        details.qa-item summary::after {
+            content: '▾';
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: transform 0.25s;
+            font-weight: 700;
+        }
+        details.qa-item[open] summary {
+            color: var(--primary);
+            border-bottom: 1px solid #f1f5f9;
+        }
+        details.qa-item[open] summary::after {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+        details.qa-item .answers {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.7;
+        }
+        details.qa-item .answers .a-item {
+            padding: 7px 0;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+        details.qa-item .answers .a-item:last-child { border-bottom: none; }
+        details.qa-item .answers .a-id {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #64748b;
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 5px;
+            margin-right: 6px;
+            font-weight: 700;
+        }
+
+        /* ====== 校友补充 ====== */
+        .user-reply {
+            background: var(--success-light);
+            border-left: 3px solid var(--success);
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .user-reply .reply-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .empty-state { text-align: center; color: var(--text-muted); font-size: 14px; padding: 24px 20px; }
+
+        /* ====== 提交表单 ====== */
+        .submit-box { margin-top: 24px; }
+
+        /* ====== AI 聊天 ====== */
+        .ai-chat {
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            border: 1.5px solid #c4b5fd;
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+        .ai-chat-header {
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 700; color: var(--purple);
+            font-size: 15px; margin-bottom: 12px;
+        }
+        .ai-chat-header .ai-badge {
+            font-size: 10px; background: var(--purple); color: #fff;
+            padding: 2px 8px; border-radius: 10px;
+            animation: pulse-badge 2s infinite;
+        }
+        @keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:0.7} }
+        .ai-chat-messages {
+            max-height: 300px; overflow-y: auto;
+            margin-bottom: 10px; display: flex;
+            flex-direction: column; gap: 10px;
+        }
+        .ai-msg {
+            padding: 10px 14px; border-radius: 12px;
+            font-size: 13px; line-height: 1.65;
+            max-width: 90%; word-break: break-word;
+        }
+        .ai-msg.user {
+            align-self: flex-end; background: var(--purple);
+            color: #fff; border-bottom-right-radius: 4px;
+        }
+        .ai-msg.ai {
+            align-self: flex-start; background: #fff;
+            border: 1px solid #e9d5ff; border-bottom-left-radius: 4px;
+        }
+        .ai-msg.ai .disclaimer {
+            display: block; margin-top: 8px; padding-top: 8px;
+            border-top: 1px dashed #e9d5ff;
+            font-size: 11px; color: var(--text-muted);
+        }
+        .ai-msg.loading {
+            align-self: flex-start; background: #fff;
+            border: 1px dashed #c4b5fd; color: var(--purple);
+            animation: pulse-loading 1.2s infinite;
+        }
+        @keyframes pulse-loading { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .ai-chat-input {
+            display: flex; gap: 8px;
+        }
+        .ai-chat-input input {
+            flex: 1; padding: 10px 14px;
+            border: 1.5px solid #c4b5fd; border-radius: 20px;
+            font-size: 13px; outline: none; background: #fff;
+            transition: all var(--transition);
+        }
+        .ai-chat-input input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+        }
+        .ai-chat-input button {
+            padding: 10px 18px; background: var(--purple);
+            color: #fff; border: none; border-radius: 20px;
+            font-weight: 600; font-size: 13px; cursor: pointer;
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+        .ai-chat-input button:hover { opacity: 0.85; }
+        .ai-chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .ai-hint {
+            font-size: 11px; color: var(--text-muted);
+            margin-top: 8px; text-align: center;
+        }
+
+        /* ====== 省份筛选 ====== */
+        .province-row {
+            display: flex; gap: 6px; flex-wrap: wrap;
+            align-items: center; margin-top: 10px;
+        }
+        .province-row select {
+            flex: 1; min-width: 120px;
+            padding: 10px 12px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: 13px; outline: none;
+            background: #fafbfc; cursor: pointer;
+            transition: all var(--transition);
+        }
+        .province-row select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+        }
+        .province-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 5px 12px; background: var(--primary-light);
+            border-radius: 14px; font-size: 12px; color: var(--primary);
+            font-weight: 600; cursor: pointer; transition: all var(--transition);
+        }
+        .province-badge:hover { background: #bfdbfe; }
+        .province-badge.active { background: var(--primary); color: #fff; }
+
+        /* ====== 收藏 ====== */
+        .fav-list-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px; background: #fafbfc;
+            border: 1px solid var(--border); border-radius: 10px;
+            margin-bottom: 8px; cursor: pointer;
+            transition: all var(--transition);
+        }
+        .fav-list-item:hover { background: #fef3c7; border-color: #fcd34d; }
+        .fav-list-item .fav-info { flex: 1; }
+        .fav-list-item .fav-name { font-weight: 600; font-size: 15px; color: var(--text); }
+        .fav-list-item .fav-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .fav-list-item .fav-del {
+            color: #d97706; font-size: 13px; cursor: pointer;
+            padding: 6px 10px; border-radius: 8px; transition: all var(--transition);
+        }
+        .fav-list-item .fav-del:hover { background: #fef3c7; }
+        .btn-fav {
+            padding: 8px 14px; border-radius: 10px; font-size: 12px;
+            font-weight: 600; cursor: pointer; border: 1.5px solid #f59e0b;
+            background: #fff; color: #b45309; transition: all var(--transition);
+        }
+        .btn-fav.favorited { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+
+        /* ====== 搜索历史 ====== */
+        .history-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 10px; margin-top: 4px; display: none;
+            z-index: 50; box-shadow: var(--shadow-md); overflow: hidden;
+        }
+        .history-dropdown.show { display: block; }
+        .history-item {
+            padding: 10px 14px; font-size: 13px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.15s;
+        }
+        .history-item:hover { background: #f8fafc; }
+        .history-item .del { color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 0 4px; }
+        .history-clear {
+            text-align: center; padding: 8px; font-size: 11px;
+            color: var(--text-muted); cursor: pointer; border-top: 1px solid #f1f5f9;
+        }
+
+        /* ====== 回到顶部 ====== */
+        .back-top {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 42px; height: 42px; background: var(--primary);
+            color: #fff; border: none; border-radius: 50%;
+            font-size: 18px; cursor: pointer; z-index: 99;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+            transition: all var(--transition); display: none;
+            align-items: center; justify-content: center;
+        }
+        .back-top.show { display: flex; }
+        .back-top:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37,99,235,0.4); }
+
+        /* ====== 提交表单 ====== */
+        .submit-box .submit-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--success); }
+        .submit-box textarea {
+            width: 100%; height: 80px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px; font-size: 13px;
+            resize: vertical; font-family: inherit;
+            outline: none; transition: all var(--transition);
+            background: #fafbfc;
+        }
+        .submit-box textarea:focus {
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.08);
+            background: #fff;
+        }
+        .btn-submit {
+            width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff; border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; margin-top: 8px;
+            transition: all var(--transition);
+            box-shadow: 0 2px 8px rgba(16,185,129,0.25);
+        }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-submit:active { transform: scale(0.97); }
+
+        /* ====== PK 对比页 ====== */
+        .pk-header { text-align: center; color: var(--purple); margin-bottom: 14px; font-size: 18px; font-weight: 700; }
+        .pk-schools { display: flex; gap: 10px; margin-bottom: 16px; }
+        .pk-school-card {
+            flex: 1; text-align: center; padding: 14px 10px;
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            border: 2px solid #c4b5fd;
+            border-radius: var(--radius-sm);
+            font-weight: 700; font-size: 14px;
+            color: var(--purple);
+        }
+        .pk-question {
+            font-weight: 700; color: var(--purple);
+            font-size: 14px; margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #ddd6fe;
+        }
+        .pk-row {
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px; margin-bottom: 10px;
+        }
+        .pk-answers { display: flex; gap: 10px; }
+        .pk-ans-col {
+            flex: 1; font-size: 12px; color: #475569;
+            line-height: 1.6; background: #fff;
+            padding: 10px; border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+        .pk-ans-label {
+            font-size: 10px; color: var(--text-muted);
+            font-weight: 700; margin-bottom: 4px;
+            padding-left: 6px;
+            border-left: 2px solid var(--purple);
+        }
+
+        /* ====== 浮动 PK 栏（毛玻璃效果） ====== */
+        .pk-float {
+            position: fixed; bottom: 20px;
+            left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 480px;
+            background: rgba(124, 58, 237, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fff; padding: 16px 18px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(124,58,237,0.35);
+            z-index: 100; display: none;
+            flex-direction: column; gap: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .pk-float.show { display: flex; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { bottom: -50px; opacity: 0; } to { bottom: 20px; opacity: 1; } }
+        .pk-float-top { display: flex; justify-content: space-between; align-items: center; }
+        .pk-float-title { font-weight: 700; font-size: 15px; }
+        .pk-float-btn {
+            background: #fff; color: var(--purple);
+            border: none; padding: 8px 18px;
+            border-radius: 20px; font-weight: 700;
+            font-size: 13px; cursor: pointer;
+            transition: all var(--transition);
+        }
+        .pk-float-btn:hover { transform: scale(1.03); }
+        .pk-float-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pk-float-pill {
+            background: rgba(255,255,255,0.18);
+            padding: 6px 12px; border-radius: 8px;
+            font-size: 12px; display: flex;
+            align-items: center; gap: 6px;
+        }
+        .pk-float-pill .remove {
+            background: #fff; color: var(--purple);
+            border-radius: 50%; width: 16px; height: 16px;
+            display: inline-flex; align-items: center;
+            justify-content: center; font-size: 10px;
+            cursor: pointer; font-weight: 700;
+            transition: all var(--transition);
+        }
+        .pk-float-pill .remove:hover { transform: scale(1.2); }
+
+        /* ====== Toast ====== */
+        .toast {
+            position: fixed; top: 24px; left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b; color: #fff;
+            padding: 12px 24px; border-radius: 12px;
+            font-size: 14px; z-index: 200;
+            opacity: 0; transition: opacity 0.35s;
+            pointer-events: none;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast.show { opacity: 1; }
+
+        /* ====== 底部 ====== */
+        .footer {
+            text-align: center; font-size: 11px;
+            color: var(--text-muted); padding: 8px 0 20px;
+            margin-top: 8px;
+        }
+
+        /* ====== 响应式 ====== */
+        @media (max-width: 400px) {
+            .card { padding: 14px; }
+            .hero { padding: 24px 16px 18px; }
+            .hero h1 { font-size: 19px; }
+            .detail-header h2 { font-size: 17px; }
+            .btn { padding: 6px 10px; font-size: 11px; }
+            .tab { font-size: 12px; padding: 8px 4px; }
+            .container { gap: 10px; padding: 0 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<div class="container">
+    <!-- ====== 渐变头部 ====== -->
+    <div id="home-view">
+        <div class="hero">
+            <div class="icon">🏫</div>
+            <h1>高考志愿大学助手</h1>
+            <div class="subtitle">全国大学真实生活查询 · 学长学姐匿名贡献</div>
+        </div>
+
+        <div id="notice-bar" class="notice" style="margin-top: 14px;">
+            <span class="dot"></span>
+            <span id="notice-text">正在连接服务器...</span>
+        </div>
+
+        <!-- 收藏 + 浏览足迹 并排 -->
+        <div class="dual-folder">
+            <div class="folder-card" onclick="showBrowseHistory()">
+                <div class="folder-icon">🕐</div>
+                <div class="folder-title">浏览足迹</div>
+                <div class="folder-count" id="browse-count-badge">0 条记录</div>
+                <div class="folder-hint">最近看过的学校</div>
+            </div>
+            <div class="folder-card" onclick="showFavorites()">
+                <div class="folder-icon">⭐</div>
+                <div class="folder-title">我的收藏</div>
+                <div class="folder-count" id="fav-count-badge">0 所</div>
+                <div class="folder-hint">点击查看已收藏</div>
+            </div>
+        </div>
+
+        <!-- 省份筛选 + 搜索 -->
+        <div class="card" style="margin-top: 14px;">
+            <div class="tabs">
+                <button id="tab-school" class="tab active-school" onclick="switchMode('school')">🏫 搜索大学</button>
+                <button id="tab-condition" class="tab" onclick="switchMode('condition')">💡 搜索条件</button>
+            </div>
+            <div class="province-row" id="province-tags">
+                <span class="province-badge active" onclick="toggleProvince('')" data-prov="">
+                    🌏 全部 <small id="prov-total">(258)</small>
+                </span>
+            </div>
+            <div id="prov-clear-row" style="display:none; margin-top:6px;">
+                <span style="font-size:11px;color:var(--danger);cursor:pointer;text-decoration:underline;" onclick="resetProvinces()">✕ 清除筛选</span>
+            </div>
+            <div style="position:relative;">
+                <div class="search-row">
+                    <input type="text" id="search-input" placeholder="输入大学名称查找..." oninput="doSearch()" autocomplete="off" onfocus="showHistory()" onblur="hideHistory()" onkeydown="if(event.key==='Enter')submitSearch()">
+                    <button class="search-btn" onclick="submitSearch()">搜索</button>
+                </div>
+                <div id="history-dropdown" class="history-dropdown"></div>
+            </div>
+            <div id="search-results" class="tag-list"></div>
+        </div>
+
+        <div class="card" id="hot-area">
+            <div class="section-title" id="hot-title-row"><span class="fire">🔥</span> 实时热搜高校</div>
+            <div id="hot-tags" class="tag-list" style="min-height:36px;">
+                <span style="color:var(--text-muted);font-size:13px;">加载中...</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            📊 数据来源于 <a href="https://github.com/CollegesChat/university-information" target="_blank" style="color:var(--primary);">大学生活质量指北 (CollegesChat)</a><br>基于 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-Hans" target="_blank" style="color:var(--text-secondary);">CC BY-NC-SA 4.0</a> 协议共享 · 仅供参考<br>实际情况可能因校区、专业不同而有差异
+        </div>
+    </div>
+
+    <!-- ====== 详情页 ====== -->
+    <div id="detail-view" style="display:none;">
+        <div class="hero" style="padding: 18px 22px 14px; margin-bottom: 0;">
+            <button class="back-btn" style="color:#fff;opacity:0.9;" onclick="goHome()">← 返回首页</button>
+        </div>
+        <div class="card" style="margin-top: 14px;">
+            <div class="detail-header">
+                <div class="detail-header-left">
+                    <h2 id="detail-name">--</h2>
+                </div>
+                <div class="btn-group">
+                    <button id="fav-toggle" class="btn-fav" onclick="toggleFavorite()">⭐ 收藏</button>
+                    <button id="pk-toggle" class="btn btn-pk" onclick="togglePk()">⚖️ 加入对比</button>
+                    <button class="btn btn-share" onclick="copyShareLink()">🔗 分享</button>
+                    <button class="btn btn-report" onclick="reportNameError()">✏️ 纠错</button>
+                </div>
+            </div>
+            <div id="detail-content">
+                <p class="empty-state">加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== PK 对比页 ====== -->
+    <div id="compare-view" style="display:none;">
+        <div class="hero" style="padding: 18px 22px 14px; margin-bottom: 0;">
+            <button class="back-btn" style="color:#fff;opacity:0.9;" onclick="goHome()">← 返回首页</button>
+        </div>
+        <div class="card" style="margin-top: 14px;">
+            <h3 class="pk-header">⚖️ 高校生活条件横向 PK</h3>
+            <div id="pk-school-labels" class="pk-schools"></div>
+            <div id="compare-content">
+                <p class="empty-state">正在加载对比数据...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 浏览足迹页 ====== -->
+    <div id="browse-view" style="display:none;">
+        <div class="hero" style="padding: 18px 22px 14px; margin-bottom: 0;">
+            <button class="back-btn" style="color:#fff;opacity:0.9;" onclick="goHome()">← 返回首页</button>
+        </div>
+        <div class="card" style="margin-top: 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <h3 style="color:var(--text);font-size:18px;">🕐 浏览足迹 (<span id="browse-view-count">0</span>)</h3>
+                <span style="font-size:12px;color:var(--danger);cursor:pointer;text-decoration:underline;" onclick="clearBrowseHistory()">清空全部</span>
+            </div>
+            <div id="browse-content">
+                <p class="empty-state">暂无浏览记录<br><small>浏览学校详情页后自动记录</small></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 收藏列表页 ====== -->
+    <div id="favorites-view" style="display:none;">
+        <div class="hero" style="padding: 18px 22px 14px; margin-bottom: 0;">
+            <button class="back-btn" style="color:#fff;opacity:0.9;" onclick="goHome()">← 返回首页</button>
+        </div>
+        <div class="card" style="margin-top: 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <h3 style="color:#b45309;font-size:18px;">📁 我的收藏 (<span id="fav-view-count">0</span>)</h3>
+                <span style="font-size:12px;color:var(--danger);cursor:pointer;text-decoration:underline;" onclick="clearFavorites()">清空全部</span>
+            </div>
+            <div id="favorites-content">
+                <p class="empty-state">暂无收藏，去首页逛逛吧～<br>看到喜欢的学校点 ⭐ 即可收藏</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== 回到顶部 ====== -->
+<button id="back-top" class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- ====== 浮动 PK 栏 ====== -->
+<div id="pk-float" class="pk-float">
+    <div class="pk-float-top">
+        <span class="pk-float-title">⚖️ 对比列表 (<span id="pk-count">0</span>/2)</span>
+        <button class="pk-float-btn" onclick="startCompare()">开始对比</button>
+    </div>
+    <div id="pk-float-pills" class="pk-float-pills"></div>
+</div>
+
+<script>
+// ========== 全局状态 ==========
+let currentSchool = '';
+let searchTimer = null;
+let searchMode = 'school';
+let compareList = [];
+let hotData = [];
+let searchData = [];
+let detailCache = {};
+
+// ========== Toast ==========
+function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ========== 页面切换 ==========
+function showView(view) {
+    document.getElementById('home-view').style.display = view === 'home' ? 'block' : 'none';
+    document.getElementById('detail-view').style.display = view === 'detail' ? 'block' : 'none';
+    document.getElementById('compare-view').style.display = view === 'compare' ? 'block' : 'none';
+    document.getElementById('favorites-view').style.display = view === 'favorites' ? 'block' : 'none';
+    document.getElementById('browse-view').style.display = view === 'browse' ? 'block' : 'none';
+    updatePkFloat();
+}
+
+function goHome() {
+    showView('home');
+    currentSchool = '';
+    window.history.replaceState(null, '', window.location.pathname);
+}
+
+// ========== 搜索 ==========
+function switchMode(mode) {
+    searchMode = mode;
+    const input = document.getElementById('search-input');
+    const tabSchool = document.getElementById('tab-school');
+    const tabCondition = document.getElementById('tab-condition');
+    const hotArea = document.getElementById('hot-area');
+
+    if (mode === 'school') {
+        tabSchool.className = 'tab active-school';
+        tabCondition.className = 'tab';
+        input.className = '';
+        input.placeholder = '输入大学名称查找...';
+        hotArea.style.display = 'block';
+    } else {
+        tabSchool.className = 'tab';
+        tabCondition.className = 'tab active-condition';
+        input.className = 'mode-condition';
+        input.placeholder = '输入关键词：空调、独卫、门禁、断电...';
+        hotArea.style.display = 'none';
+    }
+    doSearch();
+}
+
+function doSearch() {
+    const kw = document.getElementById('search-input').value.trim();
+    if (!kw) { searchData = []; renderSearchResults(); return; }
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(async () => {
+        const param = searchMode === 'school' ? 'search' : 'search_q';
+        try {
+            const res = await fetch(`api.php?${param}=${encodeURIComponent(kw)}`).then(r => r.json());
+            let results = res.error ? [] : res;
+            // 省份过滤
+            if (selectedProvinces.length > 0) {
+                results = results.filter(r => selectedProvinces.includes(r.province));
+            }
+            searchData = results;
+            renderSearchResults();
+        } catch (e) { searchData = []; renderSearchResults(); }
+    }, 300);
+}
+
+function renderSearchResults() {
+    const el = document.getElementById('search-results');
+    const kw = document.getElementById('search-input').value.trim();
+    if (!kw) { el.innerHTML = ''; return; }
+    if (!searchData.length) {
+        el.innerHTML = '<span style="font-size:12px;color:var(--text-muted);padding:6px;">未找到匹配结果，换个关键词试试？</span>';
+        return;
+    }
+    if (searchMode === 'school') {
+        el.innerHTML = searchData.map(s => {
+            const inPk = compareList.includes(s.school_name);
+            return `<span class="tag">
+                <span class="name" onclick="openDetail('${escHtml(s.school_name)}')">${escHtml(s.school_name)}</span>
+                <span class="pk-dot ${inPk ? 'in-pk' : ''}" onclick="event.stopPropagation();togglePkSchool('${escJs(s.school_name)}')">${inPk ? '✕' : 'VS'}</span>
+            </span>`;
+        }).join('');
+    } else {
+        el.innerHTML = '<div style="font-size:12px;color:var(--danger);font-weight:600;margin-bottom:6px;">🔍 为您匹配到以下高校：</div>' +
+            searchData.map(s => `<div class="q-result" onclick="openDetail('${escHtml(s.school_name)}')">
+                <div class="q-school">🏫 ${escHtml(s.school_name)}</div>
+                <div class="q-title">❓ ${escHtml(s.q)}</div>
+                <div class="q-preview">${escHtml(s.a)}</div>
+            </div>`).join('');
+    }
+}
+
+// ========== 热搜 ==========
+function renderHotTags() {
+    const el = document.getElementById('hot-tags');
+    if (!hotData.length) { el.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">暂无热搜数据</span>'; return; }
+    el.innerHTML = hotData.map(s => {
+        const inPk = compareList.includes(s.school_name);
+        return `<span class="tag">
+            <span class="name" onclick="openDetail('${escHtml(s.school_name)}')">${escHtml(s.school_name)}</span>
+            <small class="views">${escHtml(s.views)}</small>
+            <span class="pk-dot ${inPk ? 'in-pk' : ''}" onclick="event.stopPropagation();togglePkSchool('${escJs(s.school_name)}')">${inPk ? '✕' : 'VS'}</span>
+        </span>`;
+    }).join('');
+}
+
+// ========== 详情页 ==========
+async function openDetail(name) {
+    currentSchool = name;
+    showView('detail');
+    document.getElementById('detail-name').textContent = name;
+    document.getElementById('detail-content').innerHTML = '<p class="empty-state">加载中...</p>';
+    updatePkToggleBtn();
+    updateFavUI();
+    addToBrowseHistory(name);
+    window.history.replaceState(null, '', '?s=' + encodeURIComponent(name));
+
+    try {
+        if (detailCache[name]) { renderDetail(detailCache[name]); return; }
+        const data = await fetch(`api.php?name=${encodeURIComponent(name)}`).then(r => r.json());
+        if (data.error) throw new Error(data.error);
+        detailCache[name] = data;
+        renderDetail(data);
+    } catch (e) {
+        document.getElementById('detail-content').innerHTML = `<p style="color:var(--danger);text-align:center;padding:20px;">${e.message || '加载失败'}</p>`;
+    }
+}
+
+function renderDetail(data) {
+    let html = '';
+
+    // AI 聊天
+    html += `<div class="ai-chat">
+        <div class="ai-chat-header">
+            🤖 AI 校园助手 <span class="ai-badge">NEW</span>
+        </div>
+        <div class="ai-chat-messages" id="ai-messages">
+            <div class="ai-msg ai">
+                你好！我是【${escHtml(data.name)}】的AI助手，你可以问我关于这所学校的任何问题～<br>
+                <small style="color:var(--text-muted);">试试问：宿舍有空调吗？食堂怎么样？交通方便吗？</small>
+                <span class="disclaimer">📌 内容由AI基于 CollegesChat 开源校友数据生成，仅供参考。</span>
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="ai-input" placeholder="问AI：这学校宿舍有独立卫浴吗？" onkeydown="if(event.key==='Enter')askAI()">
+            <button id="ai-btn" onclick="askAI()">发送</button>
+        </div>
+        <div class="ai-hint">💡 AI基于本校校友数据回答，不会跨校查询</div>
+    </div>`;
+
+    // Q&A
+    if (data.qa && data.qa.length > 0) {
+        data.qa.forEach(item => {
+            html += `<details class="qa-item">
+                <summary>❓ ${escHtml(item.q)} <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(${item.a.length}条)</span></summary>
+                <div class="answers">
+                    ${item.a.map(a => {
+                        const colon = a.indexOf(':');
+                        const id = colon > -1 ? a.substring(0, colon) : '';
+                        const text = colon > -1 ? a.substring(colon + 1).trim() : a;
+                        return `<div class="a-item"><span class="a-id">${escHtml(id)}</span>${escHtml(text)}</div>`;
+                    }).join('')}
+                </div>
+            </details>`;
+        });
+    } else {
+        html += '<p class="empty-state">📭 暂无生活数据，欢迎做第一个贡献者！</p>';
+    }
+
+    // 校友补充
+    if (data.user_replies && data.user_replies.length > 0) {
+        html += '<div style="margin-top:20px;"><div class="section-title" style="color:var(--success);">💬 校友补充</div>';
+        data.user_replies.forEach(r => {
+            html += `<div class="user-reply">${escHtml(r.user_content)}${r.time ? `<div class="reply-time">${escHtml(r.time)}</div>` : ''}</div>`;
+        });
+        html += '</div>';
+    }
+
+    // 提交表单
+    html += `<div class="submit-box">
+        <div class="submit-title">📝 补充你的真实体验</div>
+        <textarea id="submit-text" placeholder="如：XX校区宿舍2024年刚装了空调、食堂二楼便宜好吃..."></textarea>
+        <button class="btn-submit" onclick="submitReply()">提交补充（需审核后显示）</button>
+    </div>`;
+
+    document.getElementById('detail-content').innerHTML = html;
+}
+
+async function submitReply() {
+    const text = document.getElementById('submit-text').value.trim();
+    if (!text) return toast('请输入补充内容');
+    if (text.length > 500) return toast('内容不能超过500字');
+    const body = `submit_content=1&school_name=${encodeURIComponent(currentSchool)}&user_content=${encodeURIComponent(text)}`;
+    try {
+        const res = await fetch('api.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body
+        }).then(r => r.json());
+        toast(res.error ? '❌ ' + res.error : res.msg);
+        if (!res.error) {
+            document.getElementById('submit-text').value = '';
+            delete detailCache[currentSchool];
+        }
+    } catch (e) { toast('❌ 网络错误'); }
+}
+
+async function askAI() {
+    const input = document.getElementById('ai-input');
+    const btn = document.getElementById('ai-btn');
+    const messages = document.getElementById('ai-messages');
+    const q = input.value.trim();
+    if (!q) return toast('请输入你的问题');
+
+    // 添加用户消息
+    messages.innerHTML += `<div class="ai-msg user">${escHtml(q)}</div>`;
+    messages.innerHTML += `<div class="ai-msg loading">🤔 AI正在查找本校数据...</div>`;
+    messages.scrollTop = messages.scrollHeight;
+
+    input.value = '';
+    input.disabled = true;
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    const body = `ask_ai=1&school_name=${encodeURIComponent(currentSchool)}&question=${encodeURIComponent(q)}`;
+
+    try {
+        const res = await fetch('api.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body
+        }).then(r => r.json());
+        // 移除loading
+        messages.querySelector('.loading')?.remove();
+
+        if (res.error) {
+            messages.innerHTML += `<div class="ai-msg ai" style="color:var(--danger);">❌ ${escHtml(res.error)}</div>`;
+        } else {
+            // 将换行转<br>
+            const answerHtml = escHtml(res.answer).replace(/\n/g, '<br>');
+            messages.innerHTML += `<div class="ai-msg ai">${answerHtml}<span class="disclaimer">📌 内容由AI基于 CollegesChat 开源校友数据生成，仅供参考。</span></div>`;
+        }
+    } catch (e) {
+        messages.querySelector('.loading')?.remove();
+        messages.innerHTML += `<div class="ai-msg ai" style="color:var(--danger);">❌ 网络超时，请稍后重试</div>`;
+    }
+
+    messages.scrollTop = messages.scrollHeight;
+    input.disabled = false;
+    btn.disabled = false;
+    btn.textContent = '发送';
+    input.focus();
+}
+
+async function reportNameError() {
+    const newName = prompt(`如果【${currentSchool}】已更名，请输入正确全称：`);
+    if (!newName || newName.trim() === '' || newName.trim() === currentSchool) return;
+    const body = `report_error=1&old_name=${encodeURIComponent(currentSchool)}&new_name=${encodeURIComponent(newName.trim())}`;
+    try {
+        const res = await fetch('api.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body
+        }).then(r => r.json());
+        toast(res.error ? '❌ ' + res.error : res.msg);
+    } catch (e) { toast('❌ 网络错误'); }
+}
+
+function copyShareLink() {
+    const url = window.location.origin + window.location.pathname + '?s=' + encodeURIComponent(currentSchool);
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => toast('✅ 链接已复制！'));
+    } else { toast('🔗 请手动复制地址栏链接'); }
+}
+
+// ========== PK ==========
+function togglePkSchool(name) {
+    const idx = compareList.indexOf(name);
+    if (idx > -1) { compareList.splice(idx, 1); }
+    else {
+        if (compareList.length >= 2) return toast('⚠️ 最多对比 2 所高校');
+        compareList.push(name);
+    }
+    updatePkFloat(); updatePkToggleBtn();
+    renderHotTags(); if (searchData.length) renderSearchResults();
+}
+
+function togglePk() { togglePkSchool(currentSchool); }
+
+function updatePkToggleBtn() {
+    const btn = document.getElementById('pk-toggle');
+    if (!btn) return;
+    const inPk = compareList.includes(currentSchool);
+    btn.textContent = inPk ? '❌ 取消对比' : '⚖️ 加入对比';
+    btn.className = 'btn btn-pk' + (inPk ? ' active' : '');
+}
+
+function updatePkFloat() {
+    const bar = document.getElementById('pk-float');
+    document.getElementById('pk-count').textContent = compareList.length;
+    const pills = document.getElementById('pk-float-pills');
+    pills.innerHTML = compareList.length === 0
+        ? '<span style="font-size:12px;opacity:0.7;">点击学校旁的 VS 加入对比</span>'
+        : compareList.map(name => `<span class="pk-float-pill">${escHtml(name)} <span class="remove" onclick="event.stopPropagation();togglePkSchool('${escJs(name)}')">✕</span></span>`).join('');
+    bar.classList.toggle('show', compareList.length > 0 && document.getElementById('compare-view').style.display === 'none');
+}
+
+async function startCompare() {
+    if (compareList.length < 2) return toast('⚠️ 请选择 2 所高校');
+    showView('compare');
+    document.getElementById('compare-content').innerHTML = '<p class="empty-state">正在加载对比数据...</p>';
+    document.getElementById('pk-school-labels').innerHTML = compareList.map(name => `<div class="pk-school-card">🏫 ${escHtml(name)}</div>`).join('');
+
+    try {
+        const results = await Promise.all(compareList.map(async name => {
+            if (detailCache[name]) return detailCache[name];
+            const data = await fetch(`api.php?name=${encodeURIComponent(name)}`).then(r => r.json());
+            if (!data.error) detailCache[name] = data;
+            return data;
+        }));
+        let allQuestions = [];
+        results.forEach(res => { if (res.qa) res.qa.forEach(item => { if (!allQuestions.includes(item.q)) allQuestions.push(item.q); }); });
+        if (!allQuestions.length) { document.getElementById('compare-content').innerHTML = '<p class="empty-state">两校暂无对比数据</p>'; return; }
+
+        let html = '';
+        allQuestions.forEach(q => {
+            html += `<div class="pk-row"><div class="pk-question">❓ ${escHtml(q)}</div><div class="pk-answers">`;
+            results.forEach((res, i) => {
+                const matched = res.qa ? res.qa.find(item => item.q === q) : null;
+                const text = matched ? matched.a.map(a => `<div style="margin-bottom:3px;">${escHtml(a)}</div>`).join('') : '<span style="color:#ccc;">暂无数据</span>';
+                html += `<div class="pk-ans-col"><div class="pk-ans-label">${escHtml(compareList[i])}</div>${text}</div>`;
+            });
+            html += `</div></div>`;
+        });
+        document.getElementById('compare-content').innerHTML = html;
+    } catch (e) { document.getElementById('compare-content').innerHTML = '<p style="color:var(--danger);text-align:center;">加载失败，请重试</p>'; }
+}
+
+// ========== 收藏功能 ==========
+const FAV_KEY = 'gaokao_favorites';
+let favorites = [];
+
+function loadFavorites() {
+    try { favorites = JSON.parse(localStorage.getItem(FAV_KEY)) || []; }
+    catch(e) { favorites = []; }
+}
+
+function saveFavorites() {
+    localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+}
+
+function toggleFavorite(name) {
+    const school = name || currentSchool; // 兼容有参/无参两种调用
+    if (!school) return;
+    const idx = favorites.indexOf(school);
+    if (idx > -1) {
+        favorites.splice(idx, 1);
+        saveFavorites();
+        updateFavUI();
+        renderFavorites();
+        toast('已取消收藏');
+    } else {
+        favorites.push(school);
+        saveFavorites();
+        updateFavUI();
+        renderFavorites();
+        toast('⭐ 已加入收藏');
+    }
+}
+
+function updateFavUI() {
+    const btn = document.getElementById('fav-toggle');
+    if (!btn) return;
+    const isFav = favorites.includes(currentSchool);
+    btn.innerHTML = isFav ? '⭐ 已收藏' : '☆ 收藏';
+    btn.className = 'btn-fav' + (isFav ? ' favorited' : '');
+}
+
+function renderFavorites() {
+    // 更新首页收藏计数
+    const badge = document.getElementById('fav-count-badge');
+    if (badge) badge.textContent = `(${favorites.length})`;
+}
+
+function showFavorites() {
+    document.getElementById('home-view').style.display = 'none';
+    document.getElementById('detail-view').style.display = 'none';
+    document.getElementById('compare-view').style.display = 'none';
+    document.getElementById('favorites-view').style.display = 'block';
+    updatePkFloat();
+
+    document.getElementById('fav-view-count').textContent = favorites.length;
+    const content = document.getElementById('favorites-content');
+
+    if (favorites.length === 0) {
+        content.innerHTML = '<p class="empty-state">📂 收藏夹空空如也<br><small>去首页浏览学校，点 ⭐ 即可收藏</small></p>';
+        return;
+    }
+
+    content.innerHTML = favorites.map(name => {
+        const data = detailCache[name];
+        const province = data?.province || '';
+        const qaCount = data?.qa?.length || 0;
+        return `<div class="fav-list-item" onclick="openDetail('${escHtml(name)}')">
+            <div class="fav-info">
+                <div class="fav-name">${escHtml(name)}</div>
+                <div class="fav-meta">${province ? escHtml(province) + ' · ' : ''}${qaCount}条生活数据</div>
+            </div>
+            <span class="fav-del" onclick="event.stopPropagation();toggleFavorite('${escJs(name)}');showFavorites();">✕</span>
+        </div>`;
+    }).join('');
+}
+
+function clearFavorites() {
+    if (!confirm('确定清空所有收藏？')) return;
+    favorites = [];
+    saveFavorites();
+    renderFavorites();
+    updateFavUI();
+    showFavorites();
+    toast('已清空收藏');
+}
+
+// ========== 浏览足迹 ==========
+const BROWSE_KEY = 'gaokao_browse';
+let browseHistory = [];
+
+function loadBrowseHistory() {
+    try { browseHistory = JSON.parse(localStorage.getItem(BROWSE_KEY)) || []; }
+    catch(e) { browseHistory = []; }
+}
+
+function saveBrowseHistory() {
+    localStorage.setItem(BROWSE_KEY, JSON.stringify(browseHistory));
+}
+
+function addToBrowseHistory(name) {
+    browseHistory = browseHistory.filter(h => h !== name);
+    browseHistory.unshift(name);
+    if (browseHistory.length > 50) browseHistory.pop();
+    saveBrowseHistory();
+    updateBrowseBadge();
+}
+
+function updateBrowseBadge() {
+    const badge = document.getElementById('browse-count-badge');
+    if (badge) badge.textContent = `${browseHistory.length} 条记录`;
+}
+
+function showBrowseHistory() {
+    document.getElementById('home-view').style.display = 'none';
+    document.getElementById('detail-view').style.display = 'none';
+    document.getElementById('compare-view').style.display = 'none';
+    document.getElementById('favorites-view').style.display = 'none';
+    document.getElementById('browse-view').style.display = 'block';
+    updatePkFloat();
+
+    document.getElementById('browse-view-count').textContent = browseHistory.length;
+    const content = document.getElementById('browse-content');
+
+    if (browseHistory.length === 0) {
+        content.innerHTML = '<p class="empty-state">🕐 暂无浏览记录<br><small>浏览学校详情页后会自动记录</small></p>';
+        return;
+    }
+
+    content.innerHTML = browseHistory.map(name => {
+        const data = detailCache[name];
+        const province = data?.province || '';
+        const qaCount = data?.qa?.length || 0;
+        return `<div class="fav-list-item" onclick="openDetail('${escHtml(name)}')">
+            <div class="fav-info">
+                <div class="fav-name">${escHtml(name)}</div>
+                <div class="fav-meta">${province ? escHtml(province) + ' · ' : ''}${qaCount}条生活数据</div>
+            </div>
+            <span style="color:var(--text-muted);font-size:12px;">→</span>
+        </div>`;
+    }).join('');
+}
+
+function clearBrowseHistory() {
+    if (!confirm('确定清空所有浏览足迹？')) return;
+    browseHistory = [];
+    saveBrowseHistory();
+    updateBrowseBadge();
+    showBrowseHistory();
+    toast('已清空浏览足迹');
+}
+
+// ========== 搜索历史 ==========
+const HIST_KEY = 'gaokao_history';
+let searchHistory = [];
+let historyExpanded = false;
+
+function loadHistory() {
+    try { searchHistory = JSON.parse(localStorage.getItem(HIST_KEY)) || []; }
+    catch(e) { searchHistory = []; }
+}
+
+function addToHistory(name) {
+    if (!name || !name.trim()) return;
+    name = name.trim();
+    searchHistory = searchHistory.filter(h => h !== name);
+    searchHistory.unshift(name);
+    if (searchHistory.length > 20) searchHistory.pop();
+    localStorage.setItem(HIST_KEY, JSON.stringify(searchHistory));
+}
+
+function submitSearch() {
+    const kw = document.getElementById('search-input').value.trim();
+    if (kw) addToHistory(kw);
+    document.getElementById('search-input').blur(); // 收起历史记录 + 键盘
+    document.getElementById('history-dropdown').classList.remove('show');
+}
+
+function showHistory() {
+    const dd = document.getElementById('history-dropdown');
+    const input = document.getElementById('search-input');
+    if (!dd || searchHistory.length === 0 || input.value.trim()) { dd.classList.remove('show'); return; }
+
+    historyExpanded = false;
+    const visible = searchHistory.slice(0, 3);
+    const hidden = searchHistory.slice(3);
+
+    let html = visible.map(h =>
+        `<div class="history-item" onmousedown="event.preventDefault();document.getElementById('search-input').value='${escJs(h)}';doSearch();">
+            <span>🕐 ${escHtml(h)}</span>
+            <span class="del" onmousedown="event.preventDefault();event.stopPropagation();removeHistory('${escJs(h)}')">×</span>
+        </div>`
+    ).join('');
+
+    if (hidden.length > 0) {
+        html += `<div class="history-clear" onmousedown="event.preventDefault();event.stopPropagation();expandHistory()">▼ 更多历史记录 (${hidden.length}条)</div>`;
+    }
+    html += '<div class="history-clear" onmousedown="event.preventDefault();clearHistory()">清除全部记录</div>';
+    dd.innerHTML = html;
+    dd.classList.add('show');
+}
+
+function expandHistory() {
+    historyExpanded = true;
+    const dd = document.getElementById('history-dropdown');
+    let html = searchHistory.map(h =>
+        `<div class="history-item" onmousedown="event.preventDefault();document.getElementById('search-input').value='${escJs(h)}';doSearch();">
+            <span>🕐 ${escHtml(h)}</span>
+            <span class="del" onmousedown="event.preventDefault();event.stopPropagation();removeHistory('${escJs(h)}')">×</span>
+        </div>`
+    ).join('');
+    html += '<div class="history-clear" onmousedown="event.preventDefault();clearHistory()">清除全部记录</div>';
+    dd.innerHTML = html;
+}
+
+function hideHistory() {
+    setTimeout(() => {
+        const dd = document.getElementById('history-dropdown');
+        if (dd) dd.classList.remove('show');
+    }, 200);
+}
+
+function removeHistory(name) {
+    searchHistory = searchHistory.filter(h => h !== name);
+    localStorage.setItem(HIST_KEY, JSON.stringify(searchHistory));
+    if (historyExpanded) expandHistory();
+    else showHistory();
+}
+
+function clearHistory() {
+    searchHistory = [];
+    localStorage.setItem(HIST_KEY, JSON.stringify(searchHistory));
+    document.getElementById('history-dropdown').classList.remove('show');
+    toast('已清除搜索历史');
+}
+
+// ========== 省份筛选 ==========
+let selectedProvinces = [];
+
+function populateProvinces(provinceList) {
+    const container = document.getElementById('province-tags');
+    if (!container) return;
+    // 清除旧的省份标签（保留"全部"）
+    container.querySelectorAll('.province-badge:not([data-prov=""])').forEach(e => e.remove());
+
+    let total = 0;
+    for (const p of (provinceList || [])) {
+        total += p.count;
+        const span = document.createElement('span');
+        span.className = 'province-badge';
+        span.setAttribute('data-prov', p.name);
+        span.onclick = () => toggleProvince(p.name);
+        span.innerHTML = `${p.name} <small>(${p.count})</small>`;
+        container.appendChild(span);
+    }
+    // 更新总数
+    const totalEl = document.getElementById('prov-total');
+    if (totalEl && total > 0) totalEl.textContent = `(${total})`;
+}
+
+function toggleProvince(prov) {
+    if (prov === '') {
+        selectedProvinces = [];
+    } else {
+        const idx = selectedProvinces.indexOf(prov);
+        if (idx > -1) selectedProvinces.splice(idx, 1);
+        else selectedProvinces.push(prov);
+    }
+
+    // 更新标签样式
+    document.querySelectorAll('.province-badge').forEach(b => {
+        const p = b.getAttribute('data-prov');
+        if (p === '') {
+            b.classList.toggle('active', selectedProvinces.length === 0);
+        } else {
+            b.classList.toggle('active', selectedProvinces.includes(p));
+        }
+    });
+
+    // 显示/隐藏清除按钮
+    const clearRow = document.getElementById('prov-clear-row');
+    if (clearRow) clearRow.style.display = selectedProvinces.length > 0 ? 'block' : 'none';
+
+    filterByProvince();
+}
+
+function resetProvinces() {
+    selectedProvinces = [];
+    document.querySelectorAll('.province-badge').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-prov') === '');
+    });
+    document.getElementById('prov-clear-row').style.display = 'none';
+    filterByProvince();
+}
+
+async function filterByProvince() {
+    document.getElementById('search-input').value = '';
+    searchData = [];
+    renderSearchResults();
+
+    if (selectedProvinces.length === 0) {
+        try {
+            const res = await fetch('api.php?get_home=1').then(r => r.json());
+            hotData = res.hot || [];
+        } catch(e) { hotData = []; }
+        document.getElementById('hot-title-row').style.display = '';
+        renderHotTags();
+        return;
+    }
+
+    document.getElementById('hot-title-row').style.display = 'none';
+
+    // 调用省份API获取该省全部学校
+    try {
+        const allResults = await Promise.all(
+            selectedProvinces.map(p =>
+                fetch(`api.php?province=${encodeURIComponent(p)}`).then(r => r.json())
+            )
+        );
+        const merged = [];
+        const seen = new Set();
+        for (const results of allResults) {
+            if (Array.isArray(results)) {
+                for (const r of results) {
+                    if (!seen.has(r.school_name)) {
+                        merged.push({
+                            school_name: r.school_name,
+                            views: String((r.qa_count || 0) * 100)
+                        });
+                        seen.add(r.school_name);
+                    }
+                }
+            }
+        }
+        hotData = merged.sort((a, b) => (parseInt(b.views)||0) - (parseInt(a.views)||0));
+    } catch(e) { hotData = []; }
+
+    renderHotTags();
+}
+
+// ========== 回到顶部 ==========
+function initBackTop() {
+    const btn = document.getElementById('back-top');
+    if (!btn) return;
+    window.addEventListener('scroll', () => {
+        btn.classList.toggle('show', window.scrollY > 400);
+    });
+}
+
+// ========== 初始化 ==========
+async function init() {
+    loadFavorites();
+    loadHistory();
+    loadBrowseHistory();
+    renderFavorites();
+    updateBrowseBadge();
+    initBackTop();
+
+    try {
+        const res = await fetch('api.php?get_home=1').then(r => r.json());
+        if (res.error) {
+            document.getElementById('notice-text').textContent = '⚠️ ' + res.error;
+            return;
+        }
+        document.getElementById('notice-text').textContent = res.notice || '欢迎使用！';
+        hotData = res.hot || [];
+        renderHotTags();
+        populateProvinces(res.provinces || []);
+        const s = new URLSearchParams(window.location.search).get('s');
+        if (s) openDetail(s);
+    } catch (e) {
+        document.getElementById('notice-text').textContent = '⚠️ 服务器连接失败，请确认已启动 server.py';
+    }
+}
+
+function escHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function escJs(str) {
+    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+init();
+</script>
+</body>
+</html>
