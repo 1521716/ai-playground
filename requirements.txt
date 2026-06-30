@@ -1,0 +1,2 @@
+# 根目录占位文件，实际项目在 gaokao-assistant/ 子目录
+# Railway 使用 nixpacks.toml 配置启动

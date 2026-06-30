@@ -1,0 +1,10 @@
+# Nixpacks 配置——告诉 Railway 这是 Python 项目，入口在 gaokao-assistant 子目录
+
+[phases.setup]
+nixPkgs = ["python311"]
+
+[phases.install]
+cmds = ["echo 'Python stdlib only, no pip install needed'"]
+
+[start]
+cmd = "cd gaokao-assistant && python server.py"
